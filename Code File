@@ -1,0 +1,123 @@
+#include <iostream>
+#include <string>
+#include <unordered_map>
+
+using namespace std;
+
+struct Student {
+    string firstName;
+    string lastName;
+    string dateOfBirth;
+    string contactInfo;
+};
+
+struct RegistrationRecord {
+    string fullName;
+    string username;
+    string password;
+    string gender;
+    string email;
+    string registerDate;
+    string department;
+};
+
+unordered_map<string, RegistrationRecord> registrationDB;
+unordered_map<string, Student> studentDB;
+
+void registerStudent() {
+    string fullName, username, password, gender, email, registerDate, department;
+
+    cin.ignore(); // Ignore any leftover newline characters
+
+    cout << "Enter full name: ";
+    getline(cin, fullName);
+
+    cout << "Enter username: ";
+    cin >> username;
+
+    if (registrationDB.find(username) != registrationDB.end()) {
+        cout << "Username already exists. Please try a different username.\n";
+        return;
+    }
+
+    cout << "Enter password: ";
+    cin >> password;
+    cout << "Enter gender: ";
+    cin >> gender;
+    cout << "Enter email: ";
+    cin >> email;
+    cout << "Enter register date (MM/DD/YYYY): ";
+    cin >> registerDate;
+
+    RegistrationRecord record = {fullName, username, password, gender, email, registerDate, ""};
+    registrationDB[username] = record;
+
+    cout << "Registration successful!\n";
+}
+
+bool signIn(string &username) {
+    string password;
+    cout << "Enter username: ";
+    cin >> username;
+    cout << "Enter password: ";
+    cin >> password;
+
+    if (registrationDB.find(username) != registrationDB.end() && registrationDB[username].password == password) {
+        cout << "Sign in successful!\n";
+        return true;
+    } else {
+        cout << "Invalid username or password.\n";
+        return false;
+    }
+}
+
+void suggestDepartment(float marks, const string &previousStudy, string &department) {
+    if (marks > 90 && (previousStudy == "ICS" || previousStudy == "FSC Pre Engineering")) {
+        department = "Software Engineering, AI, CS";
+    } else if (marks > 85 && previousStudy == "FSC Pre Medical") {
+        department = "Botany, Zoology, Physics";
+    } else if (marks > 80 && previousStudy == "FA") {
+        department = "English, Urdu";
+    } else {
+        department = "General Studies";
+    }
+}
+
+void enterMarksAndSuggestDepartment(const string &username) {
+    float marks;
+    string previousStudy, department;
+    cout << "Enter your marks percentage: ";
+    cin >> marks;
+    cout << "Enter your previous study (ICS/FSC Pre Engineering/FSC Pre Medical/FA): ";
+    cin >> previousStudy;
+
+    suggestDepartment(marks, previousStudy, department);
+    registrationDB[username].department = department;
+
+    cout << "Suggested department(s) based on your marks and previous study: " << department << "\n";
+}
+
+int main() {
+    int choice;
+    string username;
+    while (true) {
+        cout << "1. Register\n2. Sign In\n3. Exit\nEnter your choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                registerStudent();
+                break;
+            case 2:
+                if (signIn(username)) {
+                    enterMarksAndSuggestDepartment(username);
+                }
+                break;
+            case 3:
+                cout << "Exiting...\n";
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    }
+    return 0;
+}
